@@ -92,7 +92,7 @@ class Settings extends ConfigFormBase {
 
   /**
    * Generate the Access Url.
-   * 
+   *
    * @return string
    */
   private function accessUrl() {
@@ -100,6 +100,7 @@ class Settings extends ConfigFormBase {
     $redirectUrl = Url::fromUri('internal:/instagram_api/callback', ['absolute' => TRUE])->toString();
 
     // TODO Fix this Drupal way.
+    
     return $config->get('api_uri') . 'authorize/?client_id=' . $config->get('client_id') . '&response_type=code&redirect_uri=' . $redirectUrl;
   }
 
