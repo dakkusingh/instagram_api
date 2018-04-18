@@ -160,7 +160,7 @@ class Client {
    *   False or array.
    */
   private function doRequest($url, array $parameters = [], $requestMethod = 'GET') {
-    if (!$this->access_token) {
+    if ($this->access_token == "") {
       $msg = $this->t('Instagram API Access Token is not set. It can be set on the <a href=":config_page">configuration page</a>.',
         [':config_page' => Url::fromRoute('instagram_api.settings')]
       );
