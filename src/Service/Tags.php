@@ -87,7 +87,11 @@ class Tags {
   public function tagMediaRecent($tag, array $args = [], $cacheable = TRUE) {
     $response = $this->client->request(
       'tags/' . $tag . '/media/recent',
-      $args,
+      [
+        'max_tag_id' => '',
+        'min_tag_id' => '',
+        'count' => 10,
+      ],
       $cacheable
     );
 
@@ -117,7 +121,9 @@ class Tags {
   public function tagSearch($query, $cacheable = TRUE) {
     $response = $this->client->request(
       'tags/search',
-      ['q' => $query],
+      [
+        'q' => $query,
+      ],
       $cacheable
     );
 
