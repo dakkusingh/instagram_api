@@ -13,7 +13,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 
 /**
- * Class Instagram Callback Controller
+ * Class Instagram Callback Controller.
  *
  * @package Drupal\instagram_api\Controller
  */
@@ -31,14 +31,14 @@ class Callback extends ControllerBase {
    *
    * @param \Drupal\Core\Config\ConfigFactory $config
    *   An instance of ConfigFactory.
-   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
    *   LoggerChannelFactoryInterface.
    */
   public function __construct(ConfigFactory $config,
-                              LoggerChannelFactoryInterface $logger_factory) {
+                              LoggerChannelFactoryInterface $loggerFactory) {
     $this->config = $config->get('instagram_api.settings');
     $this->configEditable = $config->getEditable('instagram_api.settings');
-    $this->loggerFactory = $logger_factory;
+    $this->loggerFactory = $loggerFactory;
   }
 
   /**
@@ -51,6 +51,9 @@ class Callback extends ControllerBase {
     );
   }
 
+  /**
+   *
+   */
   public function callbackUrl(Request $request) {
     // TODO
     // Add a secure hash param to the previous request
@@ -73,8 +76,10 @@ class Callback extends ControllerBase {
     return ['#markup' => $markup];
   }
 
-
-  function getToken($code) {
+  /**
+   *
+   */
+  public function getToken($code) {
     // Guzzle Client.
     $guzzleClient = new GuzzleClient([
       'base_uri' => $this->config->get('api_uri'),
@@ -97,13 +102,13 @@ class Callback extends ControllerBase {
       );
 
       if ($response->getStatusCode() == 200) {
-//        kint($response->getBody()->getContents());
+        // kint($response->getBody()->getContents());
         $contents = $response->getBody()->getContents();
         return Json::decode($contents)['access_token'];
       }
     }
     catch (GuzzleException $e) {
-//      kint($e);
+      // kint($e);
       $this->loggerFactory->get('instagram_api')->error("@message", ['@message' => $e->getMessage()]);
       return FALSE;
     }
