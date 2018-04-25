@@ -73,7 +73,7 @@ class Tags {
    *
    * @param string $tag
    *   Tag for which we need info.
-   * @param bool $args
+   * @param array $args
    *   Args, see API docs for options.
    * @param bool $cacheable
    *   Cacheable.
@@ -87,11 +87,7 @@ class Tags {
   public function tagMediaRecent($tag, array $args = [], $cacheable = TRUE) {
     $response = $this->client->request(
       'tags/' . $tag . '/media/recent',
-      [
-        'max_tag_id' => '',
-        'min_tag_id' => '',
-        'count' => 10,
-      ],
+      $args,
       $cacheable
     );
 
@@ -107,8 +103,6 @@ class Tags {
    *
    * @param string $query
    *   Query to search.
-   * @param bool $args
-   *   Args, see API docs for options.
    * @param bool $cacheable
    *   Cacheable.
    *
