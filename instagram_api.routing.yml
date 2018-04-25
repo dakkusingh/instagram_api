@@ -10,4 +10,4 @@ instagram_api.callback:
   defaults: { _controller: '\Drupal\instagram_api\Controller\Callback::callbackUrl' }
   methods:  [GET]
   requirements:
-    _access: 'TRUE'
+    _permission: 'administer site configuration'
