@@ -2,10 +2,13 @@
 
 namespace Drupal\instagram_api\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Datetime\DateFormatterInterface;
 
 /**
  * Implements the Instagram api Settings form.
@@ -13,6 +16,39 @@ use Drupal\Core\Url;
  * @see \Drupal\Core\Form\FormBase
  */
 class Settings extends ConfigFormBase {
+
+
+  /**
+   * The date formatter service.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatterInterface
+   */
+  protected $dateFormatter;
+
+  /**
+   * Settings constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   Config Factory.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   Date Formatter.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory,
+                              DateFormatterInterface $date_formatter) {
+    parent::__construct($config_factory);
+
+    $this->dateFormatter = $date_formatter;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('date.formatter')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -46,7 +82,7 @@ class Settings extends ConfigFormBase {
       '#markup' => $this->t('To get your Client ID, you need to register your application on @link.',
         [
           '@link' => Link::fromTextAndUrl('https://www.instagram.com/developer/clients/manage/',
-          Url::fromUri('https://www.instagram.com/developer/clients/manage/'))->toString()
+          Url::fromUri('https://www.instagram.com/developer/clients/manage/'))->toString(),
         ]),
     ];
 
@@ -63,17 +99,18 @@ class Settings extends ConfigFormBase {
     ];
 
     if ($config->get('client_id') != '' && $config->get('client_secret') != '') {
+      $options = ['attributes' => ['target' => '_blank']];
+
       $form['client']['access_token'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Access Token'),
         '#default_value' => $config->get('access_token'),
         '#description' => $this->t('To get your Access Token, @link.',
           [
-            '@link' => Link::fromTextAndUrl('click here', Url::fromUri($this->accessUrl()))->toString(),
+            '@link' => Link::fromTextAndUrl('click here', Url::fromUri($this->accessUrl(), $options))->toString(),
           ]),
       ];
     }
-
 
     $form['caching'] = [
       '#type' => 'details',
@@ -111,9 +148,6 @@ class Settings extends ConfigFormBase {
       '#description' => $this->t('The maximum time a API request can be cached by Drupal.'),
     ];
 
-//    $foo2 = \Drupal::service('instagram_api.tags');
-    $foo2 = \Drupal::service('instagram_api.tags')->tagMediaRecent('drupal');
-    kint($foo2);
     return parent::buildForm($form, $form_state);
   }
 
@@ -135,14 +169,25 @@ class Settings extends ConfigFormBase {
    * Generate the Access Url.
    *
    * @return string
+   *   URL.
    */
   private function accessUrl() {
     $config = $this->config('instagram_api.settings');
     $redirectUrl = Url::fromUri('internal:/instagram_api/callback', ['absolute' => TRUE])->toString();
+    $urlBase = $config->get('api_uri') . 'authorize';
 
-    // TODO Fix this Drupal way.
+    $query = [
+      'client_id' => $config->get('client_id'),
+      'response_type' => 'code',
+      'redirect_uri' => $redirectUrl,
+    ];
 
-    return $config->get('api_uri') . 'authorize/?client_id=' . $config->get('client_id') . '&response_type=code&redirect_uri=' . $redirectUrl;
+    $url = Url::fromUri($urlBase, [
+      'query' => $query,
+      'absolute' => TRUE,
+    ])->toString();
+
+    return $url;
   }
 
 }
