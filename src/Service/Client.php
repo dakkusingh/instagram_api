@@ -2,12 +2,15 @@
 
 namespace Drupal\instagram_api\Service;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use GuzzleHttp\Client as GuzzleClient;
 use Drupal\Core\Url;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Class Client.
@@ -26,6 +29,20 @@ class Client {
   protected $config;
 
   /**
+   * Logger Factory.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   */
+  protected $loggerFactory;
+
+  /**
+   * Cache Backend.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cacheBackend;
+
+  /**
    * Client constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactory $config
@@ -34,10 +51,13 @@ class Client {
    *   Cache backend.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $stringTranslation
    *   String translation.
+   * @param \Drupal\Core\Logger\LoggerChannelFactory $loggerFactory
+   *   LoggerChannelFactory.
    */
   public function __construct(ConfigFactory $config,
                               CacheBackendInterface $cacheBackend,
-                              TranslationInterface $stringTranslation) {
+                              TranslationInterface $stringTranslation,
+                              LoggerChannelFactory $loggerFactory) {
     // Get the config.
     $this->config = $config->get('instagram_api.settings');
 
@@ -54,6 +74,8 @@ class Client {
     $this->guzzleClient = new GuzzleClient([
       'base_uri' => $this->api_base_uri,
     ]);
+
+    $this->loggerFactory = $loggerFactory;
 
   }
 
@@ -88,7 +110,6 @@ class Client {
     }
     // No cache. Do it the hard way.
     else {
-      // TODO Implement try catch.
       $response = $this->doRequest($method, $args);
       if ($response) {
         // Cache the response if we got one.
@@ -168,19 +189,23 @@ class Client {
       drupal_set_message($msg, 'error');
       return FALSE;
     }
+    try {
+      $response = $this->guzzleClient->request(
+        $requestMethod,
+        $url,
+        ['query' => $parameters]
+      );
 
-    $response = $this->guzzleClient->request($requestMethod, $url, ['query' => $parameters]);
-
-    // TODO Error checking can be improved.
-    if ($response->getStatusCode() == !200) {
+      if ($response->getStatusCode() == 200) {
+        $contents = $response->getBody()->getContents();
+        $json = Json::decode($contents);
+        return $json['data'];
+      }
+    }
+    catch (GuzzleException $e) {
+      $this->loggerFactory->get('instagram_api')->error("@message", ['@message' => $e->getMessage()]);
       return FALSE;
     }
-
-    // TODO Add some checking.
-    $body = $response->getBody();
-
-    // TODO Add some checking.
-    return json_decode((string) $body, TRUE);
   }
 
 }
