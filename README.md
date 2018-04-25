@@ -1,4 +1,5 @@
 # Instagram API
+[![CircleCI](https://circleci.com/gh/dakkusingh/instagram_api.svg?style=svg)](https://circleci.com/gh/dakkusingh/instagram_api)
 
 This module integrates Instagram API with Drupal. 
 This module provides a number of services that provide
