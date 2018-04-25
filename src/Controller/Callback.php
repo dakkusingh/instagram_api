@@ -52,12 +52,12 @@ class Callback extends ControllerBase {
   }
 
   /**
-   *
+   * Callback URL for Instagram Auth.
    */
   public function callbackUrl(Request $request) {
     // TODO
     // Add a secure hash param to the previous request
-    // And validate on return if this hasg is valid.
+    // And validate on return if this hash is valid.
     $code = $request->get('code');
 
     // Try to get the token.
@@ -77,7 +77,7 @@ class Callback extends ControllerBase {
   }
 
   /**
-   *
+   * Fetch Instagram Token.
    */
   public function getToken($code) {
     // Guzzle Client.
@@ -102,12 +102,14 @@ class Callback extends ControllerBase {
       );
 
       if ($response->getStatusCode() == 200) {
+        // TODO Add debugging options.
         // kint($response->getBody()->getContents());
         $contents = $response->getBody()->getContents();
         return Json::decode($contents)['access_token'];
       }
     }
     catch (GuzzleException $e) {
+      // TODO Add debugging options.
       // kint($e);
       $this->loggerFactory->get('instagram_api')->error("@message", ['@message' => $e->getMessage()]);
       return FALSE;
