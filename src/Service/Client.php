@@ -5,7 +5,7 @@ namespace Drupal\instagram_api\Service;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactory;
-use Drupal\Core\Logger\LoggerChannelFactory;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use GuzzleHttp\Client as GuzzleClient;
@@ -31,7 +31,7 @@ class Client {
   /**
    * Logger Factory.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
    */
   protected $loggerFactory;
 
@@ -51,13 +51,13 @@ class Client {
    *   Cache backend.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $stringTranslation
    *   String translation.
-   * @param \Drupal\Core\Logger\LoggerChannelFactory $loggerFactory
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
    *   LoggerChannelFactory.
    */
   public function __construct(ConfigFactory $config,
                               CacheBackendInterface $cacheBackend,
                               TranslationInterface $stringTranslation,
-                              LoggerChannelFactory $loggerFactory) {
+                              LoggerChannelFactoryInterface $loggerFactory) {
     // Get the config.
     $this->config = $config->get('instagram_api.settings');
 

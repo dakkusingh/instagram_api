@@ -2,7 +2,7 @@
 
 namespace Drupal\instagram_api\Service;
 
-use Drupal\Core\Logger\LoggerChannelFactory;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
  * Class Users.
@@ -21,7 +21,7 @@ class Users {
   /**
    * Logger Factory.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
    */
   protected $loggerFactory;
 
@@ -30,11 +30,11 @@ class Users {
    *
    * @param \Drupal\instagram_api\Service\Client $client
    *   Client.
-   * @param \Drupal\Core\Logger\LoggerChannelFactory $loggerFactory
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
    *   LoggerChannelFactory.
    */
   public function __construct(Client $client,
-                              LoggerChannelFactory $loggerFactory) {
+                              LoggerChannelFactoryInterface $loggerFactory) {
     // Instagram API Client.
     $this->client = $client;
     $this->loggerFactory = $loggerFactory;
